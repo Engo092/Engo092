@@ -1,0 +1,5 @@
+maybe a "time measurer" to help in managing time?
+
+Ex: You press to start timer and which activity you are doing right now, and press stop, during which there will be a log that includes info like: which activity, start time, end time, time spent, etc.
+You could also reset the log activity, remove unnecessary ones...
+"maybe" features: ability for user to divide logs in dates, somehow let the timer run even when system is off.
