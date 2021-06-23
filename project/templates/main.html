@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Final Project</title>
+    </head>
+
+    <body>
+        <div id="title">
+            <p id="header">Online Timer</p>
+            <p id="subtitle">Helping manage your time</p>
+        </div>
+        <div id="main">
+            <div>
+                <p id="big">Start Timer</p>
+                <div id="timer">
+                    <p id="warning">Keep in mind that this site's timer will run for a maximum of 31 days</p>
+                    <p>
+                    <form action="/time" method="post">
+                        <input autocomplete="off" name="activity" id="activity" type="text" placeholder="Activity">
+                            <span class="line">
+                                Time you wish to spend (optional):
+                            </span>
+                            <span class="line">
+                                <input name="h" id="h" type="number" min="0"><text id="hr">h</text>
+                                <input name="m" id="m" type="number" min="0" max="59"><text id="min">min</text>
+                                <input name="s" id="s" type="number" min="0" max="59"><text id="sec">sec</text>
+                            </span>
+                            <p>
+                                <input id="submit" type="submit" value="Start Timer">
+                            </p>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <p id="big">Brief Overview</p>
+                <p id="txt">The purpose of this site is to help people in managing time, time is a very precious thing, and managing it is quite important in our lives.</p>
+                <p id="txt">In this site you can mark your activity and start a timer, optionally declaring the amount of time you want to spend doing it, after finishing your activity you should stop the timer, which will add it to your logs.</p>
+                <p id="txt">You can then look at your activity time logs, which should help in identifying what needs to be changed in your life and daily routine.</p>
+            </div>
+            <div>
+                <p id="big">Logs</p>
+            </div>
+        </div>
+    </body>

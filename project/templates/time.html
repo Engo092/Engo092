@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Final Project</title>
+
+        <script>
+            // Timer script was found on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript, i slightly modified it
+
+            if (!localStorage.getItem("startTime"))
+            {
+                var startTime = Math.floor(Date.now() / 1000); //Get starting time
+                localStorage.setItem("startTime", startTime); // Store it so timer continues when browser or system is turned off
+            }
+
+            window.onload = function startTimeCounter() {
+                var now = Math.floor(Date.now() / 1000); // Get current time
+                var diff = now - localStorage.getItem("startTime"); // Difference in seconds between start and current time
+                var h = Math.floor(diff / 3600); // Calculates hours
+                var m = Math.floor(diff / 60); // Calculates minutes
+                var s = Math.floor(diff % 60); // Calculates seconds
+                if (h < 10) {
+                    h = checkTime(h); // Adds a 0 for single digits
+                }
+                m = checkTime(m); // Adds a 0 for single digits
+                s = checkTime(s); // Adds a 0 for single digits
+                document.getElementById("count").innerHTML = h + ":" + m + ":" + s; // Update timer
+                var t = setTimeout(startTimeCounter, 1); // Timeout to update time
+            }
+
+        function checkTime(i) {
+            if (i < 10) {
+                i = "0" + i // Adds 0 for single digits
+            }
+            if (i > 60) {
+                i = i % 60 // Limits minutes to 60
+            }
+            return i;
+            }
+
+        startTimeCounter();
+    </script>
+    </head>
+
+    <body>
+        <div id="title">
+            <p id="header">Online Timer</p>
+            <p id="subtitle">Helping manage your time</p>
+        </div>
+        <div id="main1">
+            <p>Current Activity: {{ activity }}</p>
+            <p id="start"></p>
+            {% if wish %}
+                <div>Time wished to be spent: {{ h }}h {{ m }}min, {{ s }}sec</div>
+            {% endif %}
+            <h1 Id="count"></h1>
+            <form action="/time" method="post">
+                <button class="button" type="submit">STOP TIMER</button>
+            </form>
+        </div>
+
+        <script>
+
+            if (!localStorage.getItem("startDate"))
+                {
+                var date = new Date(); // Gets raw starting date
+                localStorage.setItem("startDate", date); // Store it so that starting time can be displayed on page
+                }
+
+            var startDate = localStorage.getItem("startDate"); // Gets starting datetime
+            startDate = new Date(startDate); // Converts date string from localstorage back into date object
+            var display = [startDate.getFullYear(), (startDate.getMonth() + 1), startDate.getDate(), startDate.getHours(), startDate.getMinutes(), startDate.getSeconds()] // Gets relevant datetime info
+            for (i = 1; i < 6; i+=1) // Loops through info and adds a "0" before numbers that are below 10
+                {
+                if (display[i] < 10)
+                {
+                    display[i] = "0" + display[i];
+                }
+            }
+            var date = display[0] + "-" + display[1] + "-" + display[2]; // Displays date
+            var time = display[3] + ":" + display[4] + ":" + display[5]; // Displays time
+            document.getElementById("start").innerHTML = "Starting Datetime:" + " " + date + " " + time; // Displays starting datetime on the page
+        </script>
+
+    </body>
