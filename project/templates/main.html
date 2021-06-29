@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Final Project</title>
+
+        <script>
+            // Loads log data into page
+            window.onload = function clear() {
+                localStorage.removeItem("startTime");
+                var logs = JSON.parse(JSON.stringify(localStorage.getItem("logs")));
+
+                // Got this table function from https://stackoverflow.com/questions/50725766/jquery-to-create-html-tables-with-dictionaries-entries-in-td/50725796, i spent way too much time looking for anything that worked
+                
+                // Correctly transforms array of objects into objets to be used in table
+                object = JSON.parse(logs),
+                array = Object.keys(object).map(function(k) {
+                    return object[k];
+                });
+                
+                // Function for creating dynamic table with log data
+                var mainObj = array;
+                var k = '<tbody>';
+                for(i = 0;i < mainObj.length; i++){
+                    k+= '<tr class="info">';
+                    k+= '<td>' + mainObj[i].act + '</td>';
+                    k+= '<td>' + mainObj[i].start + '</td>';
+                    k+= '<td>' + mainObj[i].end + '</td>';
+                    k+= '<td>' + mainObj[i].diff + '</td>';
+                    k+= '<td>' + mainObj[i].wish + '</td>';
+                    k+= '<td>' + mainObj[i].eta + '</td>';
+                    if ((mainObj[i].wdiff).charAt(0) == "+") { // Colors wish diff. red if user finished activity after wished time
+                        k+= '<td id="red">' + mainObj[i].wdiff + '</td>';
+                    }
+                    else if (mainObj[i].wdiff.charAt(0) == "-") { // Colors wish diff. green if user finished activity before wished time
+                        k+= '<td id="green">' + mainObj[i].wdiff + '</td>';
+                    }
+                    else if (mainObj[i].wdiff.charAt(0) == "0") { // Colors wish diff. orange if user finished activity at the same time as wished time
+                        k+= '<td id="orange">' + mainObj[i].wdiff + '</td>';
+                    }
+                    else { // Else colors it standard black
+                        k+= '<td>' + mainObj[i].wdiff + '</td>';
+                    }
+                    k+= '</tr>';
+                }
+                k+='</tbody>';
+                document.getElementById('tbody').innerHTML = k;
+
+                // Code for deleting data, which includes a dialog asking if user is sure
+
+                document.getElementById("dataClear").addEventListener("click", function clear() {
+                    if (confirm("Are you sure you want to clear all logs? This act cannot be undone.")) {
+                        localStorage.clear();
+                        location.reload();
+                        return false;
+                    }
+                    else {
+                    }
+                });
+            };
+
+        </script>
+    </head>
+
+    <body>
+        <div id="title">
+            <p id="header">Online Timer</p>
+            <p id="subtitle">Helping manage your time</p>
+        </div>
+        <div id="main">
+            <div>
+                <p id="big">Start Timer</p>
+                <div id="timer">
+                    <p id="warning">This site's timer will run indefinitively even after you close your browser and turn off your system.</p>
+                    <p id="warning">Please keep in mind that this site is more suited for short term activities. The time logs are not guaranteed to be completely accurate for long periods of time.</p>
+                    <p>
+                    <form action="/redi" method="post">
+                        <input autocomplete="off" name="activity" id="activity" type="text" placeholder="Activity">
+                            <span class="line">
+                                Time you wish to spend (optional):
+                            </span>
+                            <span class="line">
+                                <input name="h" id="h" class="number" type="number" min="0" step="1" max="500"><text id="hr">h</text>
+                                <input name="m" id="m" class="number" type="number" min="0" step="1" max="59"><text id="min">min</text>
+                                <input name="s" id="s" class="number" type="number" min="0" step="1" max="59"><text id="sec">sec</text>
+                            </span>
+                            <p>
+                                <input id="submit" type="submit" value="Start Timer">
+                            </p>
+                    </form>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <p id="big">Brief Overview</p>
+                <p id="txt">The purpose of this site is to help people in managing time, time is a very precious thing, and managing it is quite important in our lives.</p>
+                <p id="txt">In this site you can mark your activity and start a timer, optionally declaring the amount of time you want to spend doing it, after finishing your activity you should stop the timer, which will add it to your logs.</p>
+                <p id="txt">You can then look at your activity time logs, which should help in identifying what needs to be changed in your life and daily routine.</p>
+                <p id="test"></p>
+            </div>
+            <div>
+                <p id="big">Logs<button id="dataClear" class="button">Clear log data</button></p>
+
+                <table id="logs">
+                    <thead>
+                        <tr>
+                            <th>Activity:</th>
+                            <th>Start Time:</th>
+                            <th>End Time:</th>
+                            <th>Time Diff.:</th>
+                            <th>Time Wish:</th>
+                            <th>Estimated Time:</th>
+                            <th>Wish Diff.:</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tbody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>

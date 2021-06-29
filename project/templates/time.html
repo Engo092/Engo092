@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Final Project</title>
+
+        <script>
+
+            if (!localStorage.getItem("startTime"))
+            {
+                var startTime = Math.floor(Date.now() / 1000); //Get starting time
+                localStorage.setItem("startTime", startTime); // Store it so timer continues when browser or system is turned off
+            }
+
+            // Timer function was found on https://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript, i slightly modified it
+
+            window.onload = function startTimeCounter() {
+
+                var now = Math.floor(Date.now() / 1000); // Get current time
+                var diff = now - localStorage.getItem("startTime"); // Difference in seconds between start and current time
+                var h = Math.floor(diff / 3600); // Calculates hours
+                var m = Math.floor(diff / 60); // Calculates minutes
+                var s = Math.floor(diff % 60); // Calculates seconds
+                if (h < 10) {
+                    h = checkTime(h); // Adds a 0 for single digits
+                }
+                m = checkTime(m); // Adds a 0 for single digits
+                s = checkTime(s); // Adds a 0 for single digits
+                document.getElementById("count").innerHTML = h + ":" + m + ":" + s; // Update timer
+                var t = setTimeout(startTimeCounter, 1); // Timeout to update time
+            };
+
+            function checkTime(i) {
+                if (i < 10) {
+                    i = "0" + i; // Adds 0 for single digits
+                }
+                if (i > 60) {
+                    i = i % 60; // Limits minutes to 60
+                }
+                return i;
+                }
+
+            startTimeCounter();
+
+    </script>
+    </head>
+
+    <body>
+        <div id="title">
+            <p id="header">Online Timer</p>
+            <p id="subtitle">Helping manage your time</p>
+        </div>
+        <div id="main1">
+            <p>Current Activity: {{ activity }}</p>
+            <p id="start"></p>
+            {% if wish %}
+                <div>Time wished to be spent: <span id="test1">{{ h }}</span>h {{ m }}min, {{ s }}sec</div>
+            {% endif %}
+            <h1 Id="count"></h1>
+            <form action="/rect" method="post">
+                <input type="hidden" class="hidden" id="startT" value="">
+                <button id="button" class="button" type="submit">STOP TIMER</button>
+            </form>
+        </div>
+
+        <script>
+            if (!localStorage.getItem("startDate"))
+            {
+                var date = new Date(); // Gets raw starting date
+                localStorage.setItem("startDate", date); // Store it so that starting time can be displayed on page
+            }
+
+            var startDate = localStorage.getItem("startDate"); // Gets starting datetime
+            startDate = new Date(startDate); // Converts date string from localstorage back into date object
+            var display = [startDate.getFullYear(), (startDate.getMonth() + 1), startDate.getDate(), startDate.getHours(), startDate.getMinutes(), startDate.getSeconds()]; // Gets relevant datetime info
+
+            for (i = 1; i < 6; i+=1) // Loops through info and adds a "0" before numbers that are below 10
+            {
+                if (display[i] < 10)
+                {
+                    display[i] = "0" + display[i];
+                }
+            }
+            var date = display[0] + "-" + display[1] + "-" + display[2]; // Displays date
+            var time = display[3] + ":" + display[4] + ":" + display[5]; // Displays time
+            document.getElementById("start").innerHTML = "Starting Datetime:" + " " + date + " " + time; // Displays starting datetime on the page
+            document.getElementById("startT").value = date + " " + time; // Saves starting date for logs in main page
+            document.getElementById("button").addEventListener("click", endDate); // Sets function when button is clicked
+
+            function endDate() {
+                localStorage.removeItem("startDate"); // Removes startDate from localStorage
+                var endTime = new Date(); // Gets datetime of when button was clicked and timer was stopped
+                var endT = [endTime.getFullYear(), (endTime.getMonth() + 1), endTime.getDate(), endTime.getHours(), endTime.getMinutes(), endTime.getSeconds()]; // Gets relevant information from end datetime
+                for (j = 0; j < 6; j+=1) // Adds 0 before digits that are below 10
+                {
+                    if (endT[j] < 10)
+                    {
+                        endT[j] = "0" + endT[j]
+                    }
+                };
+
+                var endDatetime = endT[0] + "-" + endT[1] + "-" + endT[2] + " " + endT[3] + ":" + endT[4] + ":" + endT[5]; // Display ending datetime correctly
+                var act = {{ activity|safe }}; // Gets activity info with jinja
+                var logs = JSON.parse(localStorage.getItem("logs")) || []; // Gets logs or creates empty array if logs don't exist yet
+                var check = document.getElementById("test1"); // Checks if there is a time wish
+                if (!check) {
+                    var wtime = "NA" // Empty wish time if no wish
+                    var eta = "NA" // Empty eta time if no wish
+                    var wdiff = "NA" // Empty wish difference time if no wish
+                }
+                else {
+                    var wtime = {{ h|safe }} + "h" + " " + {{ m|safe }} + "m" + " " + {{ s|safe }} + "s"; // display wish correctly
+
+                    // The code that follows is my attempt to calculate datetime using wished time, i can't guarantee that it's completely accurate
+
+                    var etah = Number(display[3]) + Number({{ h|safe }}); // Gets estimation of hours
+                    var etam = Number(display[4]) + Number({{ m|safe }}); // Gets estimation of minutes
+                    var etas = Number(display[5]) + Number({{ s|safe }}); // Gets estimation of seconds
+                    display[0] = Number(display[0]); // Gets estimation of years
+                    display[1] = Number(display[1]); // Gets estimation of months
+                    display[2] = Number(display[2]); // Gets estimation of days
+
+                    if (etas > 59) { // Updates seconds accordingly, including updating the minute counter
+                        var plm = Math.floor(etas / 60);
+                        etam = etam + plm;
+                        etas = etas % 60;
+                    }
+                    if (etam > 59) { // Updates minutes accordingly, including updating the hour counter
+                        var plh = Math.floor(etam / 60);
+                        etah = etah + plh;
+                        etam = etam % 60;
+                    }
+                    if (etah > 24) { // Updates hours accordingly, including updating the days counter
+                        var plus = Math.floor(etah / 24);
+                        display[2] = Number(display[2]) + plus;
+                        etah = etah % 24;
+                    }
+
+                    if (display[1] == 4 || display[1] == 6 || display[1] == 9 || display[1] == 11) { // Deals with the case of 30 day months where the day counter exceeds 30
+                        if (display[2] > 30) {
+                            var plusmonth = Math.floor(display[2] / 30);
+                            display[1] = display[1] + plusmonth;
+                            display[2] = display[2] % 30;
+                        }
+                    }
+
+                    else if (display[1] == 2) { // Deals with February
+                        if ((display[0] % 4) == 0 && (display[0] % 100) != 0 || (display[0] % 400) == 0) { // In case it is a leap year this accounts for the 29th day
+                            if (display[2] > 29) {
+                                var plusmonth = Math.floor(display[2] / 29);
+                                display[1] = display[1] + plusmonth;
+                                display[2] = display[2] % 29;
+                            }
+                        }
+                        else {
+                            if (display[2] > 28) { // For non-leap years, it accounts for 28 days
+                                var plusmonth = Math.floor(display[2] / 28);
+                                display[1] = display[1] + plusmonth;
+                                display[2] = display[2] % 28;
+                            }
+                        }
+                    }
+
+                    else { // Deals with 31 day months
+                        if (display[1] == 12) { // Deals with the special case of December, which updates the year counter
+                            if (display[2] > 31) {
+                                display[0] += 1;
+                                display[1] = Math.floor(display[2] / 31);
+                                display[2] = display[2] % 31;
+                            }
+                        }
+                        else {
+                            if (display[2] > 31) { // Deals with all other cases
+                                var plusmonth = Math.floor(display[2] / 31);
+                                display[1] = display[1] + plusmonth;
+                                display[2] = display[2] % 31;
+                            }
+                        }
+                    }
+
+                    // Adds a zero in front of all numbers below 10
+                    display[0] = zeroInFront(display[0]);
+                    display[1] = zeroInFront(display[1]);
+                    display[2] = zeroInFront(display[2]);
+                    etah = zeroInFront(etah);
+                    etam = zeroInFront(etam);
+                    etas = zeroInFront(etas);
+
+                    var eta = display[0] + "-" + display[1] + "-" + display[2] + " " + etah + ":" + etam + ":" + etas; // Stores the ETA datetime
+
+                    // Got most of following code (until if statements) from https://stackoverflow.com/questions/29816872/how-can-i-convert-milliseconds-to-hhmmss-format-using-javascript/29816921
+                    var diff = new Date(endDatetime) - new Date(eta); // Gets time difference in milliseconds
+                    var secdiff = diff / 1000; // Transforms into seconds
+                    var hdiff = Math.abs(parseInt( secdiff / 3600 )); // Gets all hours
+                    secdiff = secdiff % 3600; // Seconds that can't be transformed into hours
+                    var mindiff = Math.abs(parseInt( secdiff / 60 )); // Gets all minutes
+                    secdiff = Math.abs(secdiff % 60); // Gets remaining seconds
+
+                    if (new Date(endDatetime) - new Date(eta) == 0) { // Displays time if difference is 0
+                        var wdiff = zeroInFront(hdiff) + ":" + zeroInFront(mindiff) + ":" + zeroInFront(secdiff);
+                    }
+                    else if (new Date(endDatetime) < new Date(eta)) { // Displays time if user finished activity before wished time
+                        var wdiff = "-" + zeroInFront(hdiff) + ":" + zeroInFront(mindiff) + ":" + zeroInFront(secdiff);
+                    }
+                    else if (new Date(endDatetime) > new Date(eta)) { // Displays time if user finished activity after wished time
+                        var wdiff = "+" + zeroInFront(hdiff) + ":" + zeroInFront(mindiff) + ":" + zeroInFront(secdiff);
+                    }
+                }
+
+                logs.push({act: act, start: document.getElementById("startT").value, end: endDatetime, diff: document.getElementById("count").innerHTML, wish: wtime, eta: eta, wdiff: wdiff}); // Pushes relevant info to logs
+                localStorage.setItem("logs", JSON.stringify(logs)); // Store log data as string in local storage
+            }
+
+        function zeroInFront(num) { // Function to add a zero infront of numbers below 10
+            if (num < 10) {
+                num = "0" + num;
+            }
+            return num
+        }
+        </script>
+
+    </body>
