@@ -11,3 +11,7 @@ Even though that is my main focus currently, I also love to learn about other to
 Also, even though I am brazilian, this profile and my projects are all in english currently, and that is mostly because I learned programming entirely through english sources. However, I might update this profile to include both english and portuguese descriptions and information in the future.
 
 I am also an avid Rock/Metal fan, and play both guitar and bass. 🤘
+
+***
+
+My LinkedIn page: https://www.linkedin.com/in/enzo-kusuki-098245217/
